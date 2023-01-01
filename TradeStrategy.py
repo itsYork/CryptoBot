@@ -7,7 +7,7 @@ class TradeStrategy:
         """Determines the best grid size and investment amount based on the investment amount and range to trade in.
 
         Returns:
-            A tuple containing the grid size and investment amount per grid.
+            A tuple containing the grid size (int) and investment amount per grid (float).
         """
         range_percent = self.range_percent
         # Calculate the grid size based on the range to trade in
@@ -21,11 +21,11 @@ class TradeStrategy:
     def divide_investment(self, crypto_prices):
         """Divides an investment amount among a list of cryptocurrencies.
 
-        Args:
-            crypto_prices: A list of tuples containing the names and prices of the cryptocurrencies to invest in.
+        Args: crypto_prices (list): A list of tuples containing the names (str) and prices (float) of the
+        cryptocurrencies to invest in.
 
         Returns:
-            A list of investment amounts for each cryptocurrency.
+            A list of investment amounts (float) for each cryptocurrency.
         """
         # Calculate the weight of each cryptocurrency
         total_price = sum(price for _, price in crypto_prices)
@@ -40,12 +40,12 @@ class TradeStrategy:
         """Creates a list of orders for a given grid size and investment amount.
 
         Args:
-            grid_params: A tuple containing the grid size and investment amount per grid.
-            price: The current price of the cryptocurrency.
-            side: The side of the orders ("buy" or "sell").
+            grid_params (tuple): A tuple containing the grid size (int) and investment amount per grid (float).
+            price (float): The current price of the cryptocurrency.
+            side (str): The side of the orders ("buy" or "sell").
 
         Returns:
-            A list of orders.
+            A list of orders (list). Each order is a dictionary with keys "side" (str), "price" (float), and "size" (float).
         """
         grid_size, investment_per_grid = grid_params
         orders = []
@@ -63,3 +63,27 @@ class TradeStrategy:
             }
             orders.append(order)
         return orders
+
+
+# Example usage
+"""investment_amount = 3000
+range_percent = 0.01
+ts = TradeStrategy(investment_amount, range_percent)
+crypto_prices = [('BTC', 16000), ('ETH', 1200), ('XRP', 0.34)]
+allocations = ts.divide_investment(crypto_prices)
+
+# Example usage (continued)
+for (crypto, price), allocation in zip(crypto_prices, allocations):
+    grid_params = ts.determine_best_grid_params()
+    if grid_params == (0, 0):
+        # Investment amount is not high enough, skip creating orders
+        continue
+    # Set the range to trade in (e.g. 10% for a 10% range)
+    range_percent = 0.1
+    buy_orders = ts.create_orders(grid_params, price, "buy")
+    sell_orders = ts.create_orders(grid_params, price, "sell")
+    print(f'{crypto}:')
+    print("Buy orders:")
+    print(buy_orders)
+    print("Sell orders:")
+    print(sell_orders)"""
