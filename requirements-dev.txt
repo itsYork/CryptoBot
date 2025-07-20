@@ -1,0 +1,6 @@
+pytest>=8.2
+pytest-anyio>=0.6
+respx>=0.21
+pytest-mock>=3.14
+freezegun>=1.4
+ruff>=0.4
