@@ -113,7 +113,58 @@ class VolatilityAdaptiveSpotV3(IStrategy):
         time_in_force: str,
         **kwargs: Any,
     ) -> bool:
-        return rate > 0
+        """
+        Validate whether current market conditions allow opening a new trade.
+
+        A trade will only be entered when all of the following conditions are
+        met:
+
+        * The spread between the best ask and bid is below 1 % of the ask
+          price, indicating a reasonably tight market.
+        * The latest candle volume is higher than the rolling 24-period
+          average volume, signalling increased market participation.
+        * The current time in UTC falls between 06:00 and 18:00. This avoids
+          thinly traded hours that can introduce excessive slippage.
+
+        Args:
+            pair: Trading pair being evaluated.
+            order_type: Type of order (limit/market).
+            amount: Proposed stake amount.
+            rate: Proposed rate for the order.
+            time_in_force: Order's time in force.
+            **kwargs: Additional keyword arguments passed by Freqtrade.
+
+        Returns:
+            True if all requirements are satisfied, otherwise False.
+        """
+
+        ticker = self.dp.ticker(pair) if hasattr(self.dp, "ticker") else None
+        dataframe = self.dp.get_analyzed_dataframe(pair, self.timeframe)
+
+        if not ticker or dataframe is None or dataframe.empty:
+            return False
+
+        best_ask = ticker.get("ask")
+        best_bid = ticker.get("bid")
+
+        if not best_ask or not best_bid:
+            return False
+
+        spread = (best_ask - best_bid) / best_ask
+
+        recent_volume = dataframe["volume"].iloc[-1]
+        avg_volume = dataframe["volume"].rolling(24).mean().iloc[-1]
+
+        hour = datetime.utcnow().hour
+
+        if (
+            spread < 0.01
+            and recent_volume > avg_volume
+            and 6 <= hour < 18
+        ):
+            return True
+
+        return False
 
     def confirm_trade_exit(
         self,
