@@ -9,8 +9,10 @@ using the **VolatilityAdaptiveSpotV3** strategy.
 # Python 3.12/3.13 environment
 python -m venv .venv && source .venv/bin/activate
 pip install -U pip
-pip install freqtrade==2025.7
+pip install freqtrade
 ```
+
+Refer to the [Freqtrade release notes](https://www.freqtrade.io/en/stable/releases/) to pin a specific version.
 
 ## Initialize user data
 
@@ -60,6 +62,21 @@ freqtrade trade -s VolatilityAdaptiveSpotV3 -c user_data/config.json
 
 Enable the `api_server` block in `user_data/config.json` and visit
 `http://127.0.0.1:8080/` locally. Do not expose the service publicly.
+
+Credentials (`jwt_secret_key`, `username`, `password`) should be provided via environment variables or a separate `user_data/secrets.json` file:
+
+```json
+{
+  "api_server": {
+    "jwt_secret_key": "YOUR_SECRET",
+    "username": "YOUR_USER",
+    "password": "YOUR_PASSWORD"
+  }
+}
+```
+
+Run the bot with both configs: `freqtrade trade -c user_data/config.json,user_data/secrets.json`
+
 
 ## Troubleshooting
 

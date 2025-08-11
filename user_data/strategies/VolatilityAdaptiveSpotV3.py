@@ -51,12 +51,6 @@ class VolatilityAdaptiveSpotV3(IStrategy):
         },
     ]
 
-    order_types = {
-        "entry": "limit",
-        "exit": "limit",
-        "emergencysell": "market",
-        "stoploss": "market",
-    }
 
     order_time_in_force = {"entry": "GTC", "exit": "GTC"}
     unfilledtimeout = {"entry": 20, "exit": 10, "unit": "minutes"}

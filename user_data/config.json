@@ -1,22 +1,29 @@
 {
   "dry_run": true,
   "stake_currency": "USDT",
+  "stake_amount": 100,
   "trading_mode": "spot",
   "timeframe": "1h",
   "max_open_trades": 1,
   "pairlists": [
-    { "method": "StaticPairList" }
+    {
+      "method": "StaticPairList"
+    }
   ],
   "exchange": {
     "name": "kraken",
-    "ccxt_config": { "enableRateLimit": true },
-    "pair_whitelist": ["ETH/USDT"]
+    "ccxt_config": {
+      "enableRateLimit": true
+    },
+    "pair_whitelist": [
+      "ETH/USDT"
+    ]
   },
   "order_types": {
     "entry": "limit",
     "exit": "limit",
-    "emergencysell": "market",
-    "stoploss": "market"
+    "stoploss": "market",
+    "emergency_exit": "market"
   },
   "order_time_in_force": {
     "entry": "GTC",
@@ -33,9 +40,6 @@
     "listen_ip_address": "127.0.0.1",
     "listen_port": 8080,
     "enable_openapi": false,
-    "jwt_secret_key": "PLEASE_SET_A_SECRET",
-    "CORS_origins": [],
-    "username": "Freqtrader",
-    "password": "CHANGEME"
+    "CORS_origins": []
   }
 }
