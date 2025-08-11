@@ -2,10 +2,8 @@
 
 This module follows the specification provided in the ETH Strategy
 Instruction Set.  It includes configuration constants, persistence,
-indicator calculations and a simplified strategy class intended for
-usage with Freqtrade or as a stand‑alone loop.  The implementation is
-not intended to be production ready but provides a framework that
-mirrors the pseudocode specification.
+indicator calculations and a strategy class that can be used with
+Freqtrade or as a stand‑alone loop.
 """
 
 from __future__ import annotations
@@ -13,12 +11,20 @@ from __future__ import annotations
 import json
 import math
 import os
+import logging
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
 
 import ccxt
 import pandas as pd
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -435,8 +441,8 @@ class OrderLifecycle:
             if k not in desired_map:
                 try:
                     exchange.cancel_order(order["id"], Config.pair)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("cancel_order failed: %s", exc)
 
         # Place new desired orders
         for k, order in desired_map.items():
@@ -450,8 +456,8 @@ class OrderLifecycle:
                     order_type = order.get("type", "limit" if price is not None else "market")
                     try:
                         exchange.create_order(Config.pair, order_type, order["side"], qty, price, params)
-                    except Exception:
-                        pass
+                    except Exception as exc:
+                        logger.warning("create_order failed: %s", exc)
 
     @staticmethod
     def handle_timeouts(open_orders: List[Dict]) -> None:
@@ -461,8 +467,8 @@ class OrderLifecycle:
             if ts and (now - ts) / 1000 > Config.unfilled_timeout_sec:
                 try:
                     Data.exchange.cancel_order(o["id"], Config.pair)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("timeout cancel failed: %s", exc)
 
     @staticmethod
     def handle_partials(fills: List[Dict], precision: int, min_notional: float) -> None:
@@ -474,8 +480,8 @@ class OrderLifecycle:
                 qty = round(remaining, precision)
                 try:
                     exchange.create_order(Config.pair, f.get("type", "limit"), f.get("side"), qty, price)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("partial fill submit failed: %s", exc)
 
 
 # ---------------------------------------------------------------------------
@@ -557,8 +563,8 @@ class Strategy:
             try:
                 exchange.create_order(Config.pair, "market", "sell", round(pos_qty, meta["qty_precision"]))
                 self.state.last_exit_price = price
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning("take profit failed: %s", exc)
             self.state.entry_price = None
             self.state.add_count = 0
             self.state.trail_active = False
@@ -577,8 +583,8 @@ class Strategy:
                 try:
                     exchange.create_order(Config.pair, "market", "sell", round(pos_qty, meta["qty_precision"]))
                     self.state.last_exit_price = price
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("trailing stop exit failed: %s", exc)
                 self.state.entry_price = None
                 self.state.add_count = 0
                 self.state.trail_active = False
@@ -601,8 +607,8 @@ class Strategy:
                     )
                     self.state.add_count += 1
                     self.state.last_add_price = price
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("add order failed: %s", exc)
 
 
 if __name__ == "__main__":
