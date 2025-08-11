@@ -1,1 +1,0 @@
-'''placeholder news fetcher'''
