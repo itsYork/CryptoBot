@@ -304,6 +304,14 @@ class Computations:
         port_val = eth_val + usdt_val
         return eth_val / port_val if port_val else 0.0
 
+    @staticmethod
+    def compute_equity(balances: Dict[str, float], price: float) -> float:
+        """Return total account equity in quote currency."""
+
+        eth_val = price * (balances.get("eth_free", 0) + balances.get("eth_locked", 0))
+        usdt_val = balances.get("usdt_free", 0) + balances.get("usdt_locked", 0)
+        return eth_val + usdt_val
+
 
 # ---------------------------------------------------------------------------
 # 6. Guards and protective checks
@@ -510,7 +518,7 @@ class Strategy:
         reg = Computations.regime(c1)
         atr14, atr_pct, px = Computations.atr_block(c1)
         u_risk = Computations.unit_risk(atr14, px)
-        equity = px * (balances.get("eth_free", 0) + balances.get("eth_locked", 0)) + balances.get("usdt_free", 0) + balances.get("usdt_locked", 0)
+        equity = Computations.compute_equity(balances, px)
 
         if self.state.bootstrap_state != "DONE":
             desired = InventoryBootstrap.desired_inventory_orders(c1, balances, px, atr14)
