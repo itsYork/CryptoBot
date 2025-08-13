@@ -7,6 +7,7 @@
   "dry_run_wallet": 1000,
   "trading_mode": "spot",
   "timeframe": "1h",
+  "process_only_new_candles": true,
   "max_open_trades": 5,
   "exchange": {
     "name": "binance",
@@ -18,5 +19,6 @@
   "pairlists": [
     { "method": "StaticPairList" }
   ],
+  "strategy_path": ".",
   "strategy": "SimpleStrategy"
 }
