@@ -1,0 +1,24 @@
+{
+  "dry_run": true,
+  "dry_run_wallet": 8000,
+  "max_open_trades": 1,
+  "stake_currency": "USDT",
+  "stake_amount": "unlimited",
+  "timeframe": "5m",
+  "trading_mode": "spot",
+  "exchange": {
+    "name": "kraken",
+    "ccxt_config": {"enableRateLimit": true},
+    "ccxt_async_config": {"enableRateLimit": true, "rateLimit": 3100},
+    "pair_whitelist": ["ETH/USDT"]
+  },
+  "order_types": {
+    "entry": "limit",
+    "exit": "limit",
+    "emergency_exit": "market"
+  },
+  "unfilledtimeout": {"buy": 90, "sell": 90, "unit": "seconds"},
+  "bid_strategy": {"price_side": "bid", "use_order_book": true},
+  "ask_strategy": {"price_side": "ask", "use_order_book": true},
+  "position_adjustment_enable": true
+}
