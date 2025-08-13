@@ -3,10 +3,10 @@
   "stake_currency": "USDT",
   "stake_amount": "unlimited",
   "fiat_display_currency": "USD",
-  "dry_run": true,
-  "dry_run_wallet": 1000,
+  "dry_run": false,
   "trading_mode": "spot",
   "timeframe": "1h",
+  "process_only_new_candles": true,
   "max_open_trades": 5,
   "exchange": {
     "name": "binance",
@@ -18,5 +18,6 @@
   "pairlists": [
     { "method": "StaticPairList" }
   ],
+  "strategy_path": ".",
   "strategy": "SimpleStrategy"
 }

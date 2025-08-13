@@ -18,6 +18,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
+from pandas import DataFrame
+from freqtrade.strategy import IStrategy
 
 
 # ---------------------------------------------------------------------------
@@ -395,7 +397,42 @@ class OrderLifecycle:
 
 
 # ---------------------------------------------------------------------------
-# 11. Strategy loop (simplified)
+# 11. Freqtrade strategy class
+# ---------------------------------------------------------------------------
+
+
+class EthStrategy(IStrategy):
+    """Minimal Freqtrade-compatible strategy using helpers from this module."""
+
+    timeframe = "5m"
+    process_only_new_candles = True
+    startup_candle_count = 200
+    minimal_roi = {"0": 0.02}
+    stoploss = -0.10
+    trailing_stop = False
+
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe["ema_fast"] = Indicators.ema(dataframe["close"], 12)
+        dataframe["ema_slow"] = Indicators.ema(dataframe["close"], 26)
+        dataframe["atr14"] = Indicators.atr(dataframe["high"], dataframe["low"], dataframe["close"], 14)
+        dataframe["donchian_high"] = Indicators.donchian_high(dataframe["high"], 20)
+        return dataframe
+
+    def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe.loc[
+            (dataframe["ema_fast"] > dataframe["ema_slow"]) &
+            (dataframe["close"] > dataframe["donchian_high"]),
+            "enter_long",
+        ] = 1
+        return dataframe
+
+    def populate_exit_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        dataframe.loc[(dataframe["ema_fast"] < dataframe["ema_slow"]), "exit_long"] = 1
+        return dataframe
+
+
+# ---------------------------------------------------------------------------
+# 12. Strategy loop (simplified)
 # ---------------------------------------------------------------------------
 
 
